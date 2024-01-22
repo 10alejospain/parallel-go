@@ -10,11 +10,7 @@ import (
 
 func worker(inside_ptr *int, times int, routines int, wg_ptr *sync.WaitGroup) {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	fmt.Print("hola")
-
 	for i := 0; i < (times / routines); i++ {
-		wg_ptr.Add(1)
 
 		x := random.Float64()
 		y := random.Float64()
@@ -23,7 +19,7 @@ func worker(inside_ptr *int, times int, routines int, wg_ptr *sync.WaitGroup) {
 			*inside_ptr = *inside_ptr + 1
 		}
 	}
-	wg_ptr.Done()
+	defer wg_ptr.Done()
 }
 
 func main() {
@@ -46,8 +42,10 @@ func main() {
 	}()
 
 	for i := 0; i < *routines; i++ {
+		wg.Add(1)
 		go worker(inside_ptr, *points, *routines, wg_ptr)
 	}
 	wg.Wait()
+	fmt.Println(inside)
 	fmt.Printf("Aprox pi = %f, time = ", 4.0*float64(inside)/float64(*points))
 }
